@@ -61,6 +61,8 @@ namespace ScreenScraper
         /// <param name="e"></param>
         private void buttonFind_Click(object sender, EventArgs e)
         {
+            _foundBitmapLocations.Clear();
+
             var bitmapsToFind = _fileNames.Select(fileName => new Bitmap(fileName)).ToList();
 
             Cursor = Cursors.WaitCursor;
@@ -74,7 +76,7 @@ namespace ScreenScraper
                         MessageBox.Show("One of the bitmaps is larger than the screen - it's not possible to find it.", "Invalid input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
-                    _foundBitmapLocations = SearchBitmap(smallBitmap, screenBitmap, 0);
+                    _foundBitmapLocations.AddRange(SearchBitmap(smallBitmap, screenBitmap, 0));
 
                     smallBitmap.Dispose();
                 }
@@ -84,12 +86,12 @@ namespace ScreenScraper
 
             if (_foundBitmapLocations.Count > 0)
             {
-                var message = new StringBuilder();
+                var message = new StringBuilder((bitmapsToFind.Count > 1 ? "The bitmaps were" : "The bitmap was") + " found at the following location(s): ");
                 foreach (var point in _foundBitmapLocations)
                 {
                     message.Append(String.Format("({0},{1})", point.X, point.Y));
                 }
-                MessageBox.Show(String.Format("The bitmap was found at the following location(s): {0}", message));
+                MessageBox.Show(message.ToString());
             }
         }
 
