@@ -1,0 +1,9 @@
+C:\projects\sandbox\BitmapLocator\BitmapLocator\bin\Debug\ScreenScraper.exe.config
+C:\projects\sandbox\BitmapLocator\BitmapLocator\obj\Debug\ScreenScraper.exe
+C:\projects\sandbox\BitmapLocator\BitmapLocator\obj\Debug\ScreenScraper.pdb
+C:\projects\sandbox\BitmapLocator\BitmapLocator\bin\Debug\ScreenScraper.exe
+C:\projects\sandbox\BitmapLocator\BitmapLocator\bin\Debug\ScreenScraper.pdb
+C:\projects\sandbox\BitmapLocator\BitmapLocator\obj\Debug\BitmapLocator.csprojResolveAssemblyReference.cache
+C:\projects\sandbox\BitmapLocator\BitmapLocator\obj\Debug\ScreenScraper.BitmapLocator.resources
+C:\projects\sandbox\BitmapLocator\BitmapLocator\obj\Debug\ScreenScraper.Properties.Resources.resources
+C:\projects\sandbox\BitmapLocator\BitmapLocator\obj\Debug\BitmapLocator.csproj.GenerateResource.Cache
