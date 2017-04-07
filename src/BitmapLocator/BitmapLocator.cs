@@ -52,6 +52,8 @@ namespace ScreenScraper
 
             _fileNames = bitmapOpenFileDialog.FileNames.ToList();
             textBoxBitmap.Text = String.Join(", ", _fileNames);
+
+            buttonFind.Enabled = true;
         }
 
         /// <summary>

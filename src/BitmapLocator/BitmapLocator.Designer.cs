@@ -68,6 +68,7 @@
             // 
             // buttonFind
             // 
+            this.buttonFind.Enabled = false;
             this.buttonFind.Location = new System.Drawing.Point(197, 51);
             this.buttonFind.Name = "buttonFind";
             this.buttonFind.Size = new System.Drawing.Size(75, 23);
