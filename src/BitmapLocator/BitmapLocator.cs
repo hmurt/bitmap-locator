@@ -133,7 +133,7 @@ namespace ScreenScraper
         /// <param name="smallBmp">The bitmap to search for.</param>
         /// <param name="bigBmp">The bitmap where the small bitmap is searched for.</param>
         /// <param name="tolerance">Tolerance value, set this to a number between 0 (exact pixel-by-pixel match) and 0.2 (fuzzy match)</param>
-        /// <returns></returns>
+        /// <returns>The location of the small bitmap inside the big bitmap as a Rectangle object.</returns>
         private Rectangle SearchBitmap(Bitmap smallBmp, Bitmap bigBmp, double tolerance)
         {
             var smallData =
