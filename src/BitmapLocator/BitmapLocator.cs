@@ -23,7 +23,7 @@ namespace ScreenScraper
 
         private List<string> _fileNames = new List<string>();
 
-        private List<Point> _foundBitmapLocations = new List<Point>();
+        private readonly List<Point> _foundBitmapLocations = new List<Point>();
 
         /// <summary>
         /// Default constructor.
