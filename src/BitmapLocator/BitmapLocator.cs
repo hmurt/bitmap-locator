@@ -21,7 +21,9 @@ namespace ScreenScraper
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
         public static extern int BitBlt(IntPtr hDC, int x, int y, int nWidth, int nHeight, IntPtr hSrcDC, int xSrc, int ySrc, int dwRop);
 
-        private Bitmap _bitmapAtCursor = new Bitmap(300, 300, PixelFormat.Format32bppArgb);
+        private List<string> _fileNames = new List<string>();
+
+        private List<Point> _foundBitmapLocations = new List<Point>();
 
         /// <summary>
         /// Default constructor.
@@ -32,40 +34,67 @@ namespace ScreenScraper
         }
 
         /// <summary>
-        /// Tick event for the timer.
+        /// Event handler for buttonBrowse click event.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MouseMoveTimer_Tick(object sender, EventArgs e)
+        private void buttonBrowse_Click(object sender, EventArgs e)
         {
-            var cursor = new Point();
-            GetCursorPos(ref cursor);
+            bitmapOpenFileDialog.Filter = "BMP and PNG files (*.bmp, *.png)|*.bmp;*.png";
+            if (bitmapOpenFileDialog.ShowDialog() != DialogResult.OK)
+                return;
 
-            UpdateBitmapAtLocation(cursor);
-            BackgroundImage = _bitmapAtCursor;
+            if (bitmapOpenFileDialog.FileNames.Length > 3)
+            {
+                MessageBox.Show("Please select 1-3 bitmap files.", "Invalid input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _fileNames = bitmapOpenFileDialog.FileNames.ToList();
+            textBoxBitmap.Text = String.Join(", ", _fileNames);
         }
 
         /// <summary>
-        /// Gets the on-screen bitmap image at the given location.
+        /// Event handler for buttonFind click event.
         /// </summary>
-        /// <param name="location">The location.</param>
-        /// <returns></returns>
-        private void UpdateBitmapAtLocation(Point location)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonFind_Click(object sender, EventArgs e)
         {
-            _bitmapAtCursor.Dispose();
-            _bitmapAtCursor = new Bitmap(300,
-                                         300,
-                                           PixelFormat.Format32bppArgb);
+            var bitmapsToFind = _fileNames.Select(fileName => new Bitmap(fileName)).ToList();
 
-            using (var gfxScreenshot = Graphics.FromImage(_bitmapAtCursor))
+            Cursor = Cursors.WaitCursor;
+
+            using (var screenBitmap = GetFullScreenBitmap())
             {
+                foreach (var smallBitmap in bitmapsToFind)
+                {
+                    if (smallBitmap.Height > screenBitmap.Height || smallBitmap.Width > screenBitmap.Width)
+                    {
+                        MessageBox.Show("One of the bitmaps is larger than the screen - it's not possible to find it.", "Invalid input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
 
-                gfxScreenshot.CopyFromScreen(location.X,
-                                            location.Y,
-                                            0,
-                                            0,
-                                            new Size(300, 300),
-                                            CopyPixelOperation.SourceCopy);
+                    var location = SearchBitmap(smallBitmap, screenBitmap, 0);
+
+                    if (location.Width > 0)
+                    {
+                        _foundBitmapLocations.Add(new Point(location.X, location.Y));
+                    }
+
+                    smallBitmap.Dispose();
+                }
+            }
+
+            Cursor = Cursors.Default;
+
+            if (_foundBitmapLocations.Count > 0)
+            {
+                var message = new StringBuilder();
+                foreach (var point in _foundBitmapLocations)
+                {
+                    message.Append(String.Format("({0},{1})", point.X, point.Y));
+                }
+                MessageBox.Show(String.Format("The bitmap was found at the following location(s): {0}", message));
             }
         }
 
@@ -91,9 +120,118 @@ namespace ScreenScraper
                                              CopyPixelOperation.SourceCopy);
             }
 
-            //bitmap.Save("Screenshot.png", ImageFormat.Png);
-
             return bitmap;
+        }
+
+        /// <summary>
+        /// Searches the location of a smaller bitmap inside a bigger bitmap.
+        /// 
+        /// License notice: This source code was modified and optimized from the example by verence333 at
+        /// https://www.codeproject.com/Articles/38619/Finding-a-Bitmap-contained-inside-another-Bitmap,
+        /// licensed under the CPOL license (https://www.codeproject.com/info/cpol10.aspx).
+        /// </summary>
+        /// <param name="smallBmp">The bitmap to search for.</param>
+        /// <param name="bigBmp">The bitmap where the small bitmap is searched for.</param>
+        /// <param name="tolerance">Tolerance value, set this to a number between 0 (exact pixel-by-pixel match) and 0.2 (fuzzy match)</param>
+        /// <returns></returns>
+        private Rectangle SearchBitmap(Bitmap smallBmp, Bitmap bigBmp, double tolerance)
+        {
+            BitmapData smallData =
+              smallBmp.LockBits(new Rectangle(0, 0, smallBmp.Width, smallBmp.Height),
+                       System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                       System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            BitmapData bigData =
+              bigBmp.LockBits(new Rectangle(0, 0, bigBmp.Width, bigBmp.Height),
+                       System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                       System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            int smallStride = smallData.Stride;
+            int bigStride = bigData.Stride;
+
+            int bigWidth = bigBmp.Width;
+            int bigHeight = bigBmp.Height - smallBmp.Height + 1;
+            int smallWidth = smallBmp.Width * 3;
+            int smallHeight = smallBmp.Height;
+
+            Rectangle location = Rectangle.Empty;
+            int margin = Convert.ToInt32(255.0 * tolerance);
+
+            unsafe
+            {
+                byte* pSmall = (byte*)(void*)smallData.Scan0;
+                byte* pBig = (byte*)(void*)bigData.Scan0;
+
+                int smallOffset = smallStride - smallBmp.Width * 3;
+                int bigOffset = bigStride - bigBmp.Width * 3;
+
+                bool matchFound = true;
+
+                for (int y = 0; y < bigHeight; y++)
+                {
+                    for (int x = 0; x < bigWidth; x++)
+                    {
+                        byte* pBigBackup = pBig;
+                        byte* pSmallBackup = pSmall;
+
+                        //Look for the small picture.
+                        for (int i = 0; i < smallHeight; i++)
+                        {
+                            int j = 0;
+                            matchFound = true;
+                            for (j = 0; j < smallWidth; j++)
+                            {
+                                //With tolerance: pSmall value should be between margins.
+                                int inf = pBig[0] - margin;
+                                int sup = pBig[0] + margin;
+                                if (sup < pSmall[0] || inf > pSmall[0])
+                                {
+                                    matchFound = false;
+                                    break;
+                                }
+
+                                pBig++;
+                                pSmall++;
+                            }
+
+                            if (!matchFound) break;
+
+                            //We restore the pointers.
+                            pSmall = pSmallBackup;
+                            pBig = pBigBackup;
+
+                            //Next rows of the small and big pictures.
+                            pSmall += smallStride * (1 + i);
+                            pBig += bigStride * (1 + i);
+                        }
+
+                        //If match found, we return.
+                        if (matchFound)
+                        {
+                            location.X = x;
+                            location.Y = y;
+                            location.Width = smallBmp.Width;
+                            location.Height = smallBmp.Height;
+                            break;
+                        }
+                        //If no match found, we restore the pointers and continue.
+                        else
+                        {
+                            pBig = pBigBackup;
+                            pSmall = pSmallBackup;
+                            pBig += 3;
+                        }
+                    }
+
+                    if (matchFound) break;
+
+                    pBig += bigOffset;
+                }
+            }
+
+            bigBmp.UnlockBits(bigData);
+            smallBmp.UnlockBits(smallData);
+
+            return location;
         }
     }
 }
