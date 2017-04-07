@@ -1,9 +1,0 @@
-C:\projects\sandbox\ScreenScraper\ScreenScraper\bin\Debug\ScreenScraper.exe.config
-C:\projects\sandbox\ScreenScraper\ScreenScraper\bin\Debug\ScreenScraper.exe
-C:\projects\sandbox\ScreenScraper\ScreenScraper\bin\Debug\ScreenScraper.pdb
-C:\projects\sandbox\ScreenScraper\ScreenScraper\obj\Debug\ScreenScraper.csprojResolveAssemblyReference.cache
-C:\projects\sandbox\ScreenScraper\ScreenScraper\obj\Debug\ScreenScraper.Properties.Resources.resources
-C:\projects\sandbox\ScreenScraper\ScreenScraper\obj\Debug\ScreenScraper.csproj.GenerateResource.Cache
-C:\projects\sandbox\ScreenScraper\ScreenScraper\obj\Debug\ScreenScraper.exe
-C:\projects\sandbox\ScreenScraper\ScreenScraper\obj\Debug\ScreenScraper.pdb
-C:\projects\sandbox\ScreenScraper\ScreenScraper\obj\Debug\ScreenScraper.Form1.resources
