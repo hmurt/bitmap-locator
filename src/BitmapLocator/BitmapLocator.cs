@@ -23,7 +23,7 @@ namespace ScreenScraper
 
         private List<string> _fileNames = new List<string>();
 
-        private readonly List<Point> _foundBitmapLocations = new List<Point>();
+        private List<Point> _foundBitmapLocations = new List<Point>();
 
         /// <summary>
         /// Default constructor.
@@ -74,12 +74,7 @@ namespace ScreenScraper
                         MessageBox.Show("One of the bitmaps is larger than the screen - it's not possible to find it.", "Invalid input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
-                    var location = SearchBitmap(smallBitmap, screenBitmap, 0);
-
-                    if (location.Width > 0)
-                    {
-                        _foundBitmapLocations.Add(new Point(location.X, location.Y));
-                    }
+                    _foundBitmapLocations = SearchBitmap(smallBitmap, screenBitmap, 0);
 
                     smallBitmap.Dispose();
                 }
@@ -134,7 +129,7 @@ namespace ScreenScraper
         /// <param name="bigBmp">The bitmap where the small bitmap is searched for.</param>
         /// <param name="tolerance">Tolerance value, set this to a number between 0 (exact pixel-by-pixel match) and 0.2 (fuzzy match)</param>
         /// <returns>The location of the small bitmap inside the big bitmap as a Rectangle object.</returns>
-        private Rectangle SearchBitmap(Bitmap smallBmp, Bitmap bigBmp, double tolerance)
+        private List<Point> SearchBitmap(Bitmap smallBmp, Bitmap bigBmp, double tolerance)
         {
             var smallData =
               smallBmp.LockBits(new Rectangle(0, 0, smallBmp.Width, smallBmp.Height),
@@ -153,7 +148,7 @@ namespace ScreenScraper
             var smallWidth = smallBmp.Width * 3;
             var smallHeight = smallBmp.Height;
 
-            var location = Rectangle.Empty;
+            var locations = new List<Point>();
             var margin = Convert.ToInt32(255.0 * tolerance);
 
             unsafe
@@ -204,14 +199,10 @@ namespace ScreenScraper
                             pBig += bigStride * (1 + i);
                         }
 
-                        //If match found, we return.
+                        //If match found, we add the found point to the list.
                         if (matchFound)
                         {
-                            location.X = x;
-                            location.Y = y;
-                            location.Width = smallBmp.Width;
-                            location.Height = smallBmp.Height;
-                            break;
+                            locations.Add(new Point(x, y));
                         }
                         //If no match found, we restore the pointers and continue.
                         pBig = pBigBackup;
@@ -228,7 +219,7 @@ namespace ScreenScraper
             bigBmp.UnlockBits(bigData);
             smallBmp.UnlockBits(smallData);
 
-            return location;
+            return locations;
         }
     }
 }
