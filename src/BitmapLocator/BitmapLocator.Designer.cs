@@ -86,7 +86,7 @@
             this.Controls.Add(this.textBoxBitmap);
             this.Controls.Add(this.labelBitmapFile);
             this.Name = "BitmapLocator";
-            this.Text = "Form1";
+            this.Text = "Bitmap Locator";
             this.ResumeLayout(false);
             this.PerformLayout();
 
