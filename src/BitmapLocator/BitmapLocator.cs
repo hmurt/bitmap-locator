@@ -20,6 +20,7 @@ namespace ScreenScraper
         private List<string> _fileNames = new List<string>();
 
         private readonly List<Point> _foundBitmapLocations = new List<Point>();
+        private readonly List<string> _foundTexts = new List<string>();
 
         /// <summary>
         /// Default constructor.
@@ -74,7 +75,13 @@ namespace ScreenScraper
                         MessageBox.Show("One of the bitmaps is larger than the screen - it's not possible to find it.", "Invalid input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
-                    _foundBitmapLocations.AddRange(BitmapOperations.SearchBitmap(smallBitmap, screenBitmap, 0));
+                    var foundLocations = BitmapOperations.SearchBitmap(smallBitmap, screenBitmap, 0).ToList();
+                    _foundBitmapLocations.AddRange(foundLocations);
+
+                    foreach (var foundLocation in foundLocations)
+                    {
+                        _foundTexts.Add(TextOperations.GetTextNearLocation(screenBitmap, foundLocation));
+                    }
 
                     smallBitmap.Dispose();
                 }
@@ -86,10 +93,10 @@ namespace ScreenScraper
             {
                 var message =
                     new StringBuilder((bitmapsToFind.Count > 1 ? "The bitmaps were" : "The bitmap was") +
-                                      " found at the following location(s): ");
-                foreach (var point in _foundBitmapLocations)
+                                      " found at the following location(s):\n");
+                for (var i = 0; i < _foundBitmapLocations.Count; i++)
                 {
-                    message.Append(String.Format("({0},{1})", point.X, point.Y));
+                    message.Append(String.Format("({0},{1}): The text on the right-hand side of the bitmap was '{2}'\n", _foundBitmapLocations[i].X, _foundBitmapLocations[i].Y, _foundTexts[i].Trim()));
                 }
                 MessageBox.Show(message.ToString());
             }

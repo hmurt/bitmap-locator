@@ -58,6 +58,7 @@
     <Compile Include="BitmapOperations.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextOperations.cs" />
     <EmbeddedResource Include="BitmapLocator.resx">
       <DependentUpon>BitmapLocator.cs</DependentUpon>
     </EmbeddedResource>
