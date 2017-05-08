@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ScreenScraper
@@ -88,11 +84,20 @@ namespace ScreenScraper
 
             if (_foundBitmapLocations.Count > 0)
             {
-                var message = new StringBuilder((bitmapsToFind.Count > 1 ? "The bitmaps were" : "The bitmap was") + " found at the following location(s): ");
+                var message =
+                    new StringBuilder((bitmapsToFind.Count > 1 ? "The bitmaps were" : "The bitmap was") +
+                                      " found at the following location(s): ");
                 foreach (var point in _foundBitmapLocations)
                 {
                     message.Append(String.Format("({0},{1})", point.X, point.Y));
                 }
+                MessageBox.Show(message.ToString());
+            }
+            else
+            {
+                var message =
+                    new StringBuilder((bitmapsToFind.Count > 1 ? "The bitmaps were" : "The bitmap was") +
+                                      " not found on the screen.");
                 MessageBox.Show(message.ToString());
             }
         }
