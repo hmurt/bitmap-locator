@@ -15,6 +15,7 @@ namespace ScreenScraper
         /// </summary>
         /// <param name="bitmap"></param>
         /// <param name="location"></param>
+        /// <returns>The text that was found.</returns>
         public static string GetTextNearLocation(Bitmap bitmap, Point location)
         {
             //Just some sample values for debugging and testing...
