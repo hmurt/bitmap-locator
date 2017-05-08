@@ -55,6 +55,7 @@
     <Compile Include="BitmapLocator.Designer.cs">
       <DependentUpon>BitmapLocator.cs</DependentUpon>
     </Compile>
+    <Compile Include="BitmapOperations.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="BitmapLocator.resx">
